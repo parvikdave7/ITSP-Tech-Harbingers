@@ -1,0 +1,3 @@
+squeezenet.pth : 96%
+squeezenet2.pth : 95%
+resnet.pth : 97%
