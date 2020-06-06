@@ -4,3 +4,10 @@
   making it ready for training
 :-> new_train_model.py trains the model on training dataset
 :-> live_demo.py is used to run the liveness detection program on the desired trained model
+
+The dataset should be in the format:
+/dataset/ 
+     real/ 
+         'real ____ images'
+     fake/
+         'fake ____ images'
