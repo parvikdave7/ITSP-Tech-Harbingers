@@ -1,0 +1,4 @@
+loss = binary_crossentropy
+model = sequential
+dataset = fake / real images
+	fake and real videos
