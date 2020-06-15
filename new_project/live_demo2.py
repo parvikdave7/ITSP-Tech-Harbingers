@@ -17,7 +17,7 @@ modelPath = os.path.sep.join(["face_detector",
 net = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 
 model,_ = initialize_model(model_name = 'resnet', num_classes = 2, feature_extract = False, use_pretrained = False)
-model.load_state_dict(torch.load('resnet8.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('resnet8.pth'))
 model = model.to(device)
 model.eval()
 print('[ Model loaded successfully ]')
@@ -65,7 +65,7 @@ while True:
             face = frame[startY:endY, startX:endX]
             face = cv2.resize(face, (32, 32))
             face = torch.from_numpy(face.reshape(1,3,32,32))
-            face = face.float()
+            face = face.float().cuda()
             outputs = model(face)
             _,preds = torch.max(outputs,1)
 
