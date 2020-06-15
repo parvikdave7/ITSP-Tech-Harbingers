@@ -2,12 +2,10 @@ from imutils.video import VideoStream
 import imutils
 import numpy as np
 import cv2
-import face_recognition as recog
-from PIL import Image
 from torchvision import models
 import torch.nn as nn
 import torch
-from helper_functions import initialize_model
+from new_helper_functions import initialize_model
 import os
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -19,7 +17,7 @@ modelPath = os.path.sep.join(["face_detector",
 net = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 
 model,_ = initialize_model(model_name = 'resnet', num_classes = 2, feature_extract = False, use_pretrained = False)
-model.load_state_dict(torch.load('/home/ojas/Desktop/itsp/project/models/resnet8.pth'))
+model.load_state_dict(torch.load('resnet8.pth', map_location=torch.device('cpu')))
 model = model.to(device)
 model.eval()
 print('[ Model loaded successfully ]')
@@ -31,7 +29,7 @@ result = {0:'fake',1:'real'}
 
 while True:
 
-    check, frame = video.read()
+    frame = video.read()
     frame = imutils.resize(frame, width=600)
     #Convert to blob
     (h, w) = frame.shape[:2]
@@ -66,8 +64,8 @@ while True:
             # same manner as our training data
             face = frame[startY:endY, startX:endX]
             face = cv2.resize(face, (32, 32))
-            face = face.float().cuda()
-            face = torch.from_numpy(face.reshape(detections.shape[2],3,32,32))
+            face = torch.from_numpy(face.reshape(1,3,32,32))
+            face = face.float()
             outputs = model(face)
             _,preds = torch.max(outputs,1)
 
