@@ -17,21 +17,21 @@ class Livenet(nn.Module):
 		super(Livenet, self).__init__()
 		
 		# Layers
-		self.conv1 = nn.Conv2d(in_channels = 3,out_channels = 16,kernel_size = 3,padding = 1)
-		self.bn1 = nn.BatchNorm2d(num_features = 16,eps = 0.0001,momentum = 0.9)
-		self.conv2 = nn.Conv2d(16,16,kernel_size = 3,padding = 1)
-		self.bn2 = nn.BatchNorm2d(num_features = 16,eps = 0.0001,momentum = 0.9)
+		self.conv1 = nn.Conv2d(in_channels = 3,out_channels = 16,kernel_size = (3,3),padding = 1)
+		self.bn1 = nn.BatchNorm2d(num_features = 16,eps = 0.0001,momentum = 0.5)
+		self.conv2 = nn.Conv2d(in_channels = 16,out_channels = 16,kernel_size = (3,3),padding = 1)
+		self.bn2 = nn.BatchNorm2d(num_features = 16,eps = 0.0001,momentum = 0.5)
 		self.drop1 = nn.Dropout(p = 0.5)
 
-		self.conv3 = nn.Conv2d(16,32,kernel_size = 3,padding = 1)
-		self.bn3 = nn.BatchNorm2d(num_features = 32,eps = 0.0001,momentum = 0.9)
-		self.conv4 = nn.Conv2d(32,32,kernel_size = 3,padding = 1)
-		self.bn4 = nn.BatchNorm2d(num_features = 32,eps = 0.0001,momentum = 0.9)
+		self.conv3 = nn.Conv2d(in_channels = 16,out_channels = 32,kernel_size = (3,3),padding = 1)
+		self.bn3 = nn.BatchNorm2d(num_features = 32,eps = 0.0001,momentum = 0.5)
+		self.conv4 = nn.Conv2d(in_channels = 32,out_channels = 32,kernel_size = (3,3),padding = 1)
+		self.bn4 = nn.BatchNorm2d(num_features = 32,eps = 0.0001,momentum = 0.5)
 		self.drop2 = nn.Dropout(p = 0.5)
 
 		self.flatten = nn.Flatten()
 		self.dense1 = nn.Linear(32*8*8,64)
-		self.bn5 = nn.BatchNorm1d(num_features = 64,eps = 0.0001,momentum = 0.9)
+		self.bn5 = nn.BatchNorm1d(num_features = 64,eps = 0.0001,momentum = 0.5)
 		self.drop3 = nn.Dropout(p = 0.2)
 
 		self.dense2 = nn.Linear(64,2)
