@@ -17,22 +17,22 @@ class Livenet(nn.Module):
 		super(Livenet, self).__init__()
 		
 		# Layers
-		self.conv1 = nn.Conv2d(in_channels = 3,out_channels = 16,kernel_size = 3,padding = 1)
-		self.bn1 = nn.BatchNorm2d(num_features = 16,eps = 0.001,momentum = 0.4)
-		self.conv2 = nn.Conv2d(16,16,kernel_size = 3,padding = 1)
-		self.bn2 = nn.BatchNorm2d(num_features = 16,eps = 0.001,momentum = 0.4)
-		self.drop1 = nn.Dropout(p = 0.25)
+		self.conv1 = nn.Conv2d(in_channels = 3,out_channels = 16,kernel_size = (3,3),padding = 1)
+		self.bn1 = nn.BatchNorm2d(num_features = 16,eps = 0.0001,momentum = 0.5)
+		self.conv2 = nn.Conv2d(in_channels = 16,out_channels = 16,kernel_size = (3,3),padding = 1)
+		self.bn2 = nn.BatchNorm2d(num_features = 16,eps = 0.0001,momentum = 0.5)
+		self.drop1 = nn.Dropout(p = 0.5)
 
-		self.conv3 = nn.Conv2d(16,32,kernel_size = 3,padding = 1)
-		self.bn3 = nn.BatchNorm2d(num_features = 32,eps = 0.001,momentum = 0.4)
-		self.conv4 = nn.Conv2d(32,32,kernel_size = 3,padding = 1)
-		self.bn4 = nn.BatchNorm2d(num_features = 32,eps = 0.001,momentum = 0.4)
-		self.drop2 = nn.Dropout(p = 0.25)
+		self.conv3 = nn.Conv2d(in_channels = 16,out_channels = 32,kernel_size = (3,3),padding = 1)
+		self.bn3 = nn.BatchNorm2d(num_features = 32,eps = 0.0001,momentum = 0.5)
+		self.conv4 = nn.Conv2d(in_channels = 32,out_channels = 32,kernel_size = (3,3),padding = 1)
+		self.bn4 = nn.BatchNorm2d(num_features = 32,eps = 0.0001,momentum = 0.5)
+		self.drop2 = nn.Dropout(p = 0.5)
 
 		self.flatten = nn.Flatten()
 		self.dense1 = nn.Linear(32*8*8,64)
-		self.bn5 = nn.BatchNorm1d(num_features = 64,eps = 0.001,momentum = 0.4)
-		self.drop3 = nn.Dropout(p = 0.5)
+		self.bn5 = nn.BatchNorm1d(num_features = 64,eps = 0.0001,momentum = 0.5)
+		self.drop3 = nn.Dropout(p = 0.2)
 
 		self.dense2 = nn.Linear(64,2)
 
@@ -72,7 +72,7 @@ class Livenet(nn.Module):
 		# print(F.softmax(x))
 		return F.softmax(x)
 
-def train_model(model,dataloaders,criterion,optimizer,opt_schedule,num_epochs):
+def train_model(model,dataloaders,criterion,optimizer,num_epochs):
 	device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 	since = time.time()
 	val_acc_history = []
@@ -80,8 +80,8 @@ def train_model(model,dataloaders,criterion,optimizer,opt_schedule,num_epochs):
 
 	# model_wts = copy.deepcopy(model.state_dict())
 
-	best_model_wts = copy.deepcopy(model.state_dict())
-	best_acc = 0.0
+	last_model_wts = copy.deepcopy(model.state_dict())
+	last_acc = 0.0
 
 	for epoch in range(num_epochs):
 		print('Epoch {}/{}'.format(epoch + 1, num_epochs))
@@ -108,6 +108,8 @@ def train_model(model,dataloaders,criterion,optimizer,opt_schedule,num_epochs):
 				# Normalizing every image individually
 				# for i,image in enumerate(inputs):
 				# 	inputs = inputs/torch.max(inputs[0])
+
+				# print(torch.max(inputs),torch.min(inputs))
 
 				labels = labels.to(device)
 
@@ -154,9 +156,9 @@ def train_model(model,dataloaders,criterion,optimizer,opt_schedule,num_epochs):
 
 			print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
 
-			if phase == 'val' and epoch_acc > best_acc:
-				best_acc = epoch_acc
-				best_model_wts = copy.deepcopy(model.state_dict())
+			if phase == 'val' and (epoch_acc > last_acc or epoch_acc>0.98):
+				last_acc = epoch_acc
+				last_model_wts = copy.deepcopy(model.state_dict())
 			if phase =='train':
 				train_acc_history.append(epoch_acc)
 			if phase == 'val':
@@ -166,14 +168,15 @@ def train_model(model,dataloaders,criterion,optimizer,opt_schedule,num_epochs):
 
 		print()
 
-	opt_schedule.step()
+	# opt_schedule.step()
 
 	time_elapsed = time.time() - since
 	print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-	print('Best val Acc: {:4f}'.format(best_acc))
+	
+	print('last val Acc: {:4f}'.format(last_acc))
 
-	# load best model weights
-	model.load_state_dict(best_model_wts)
+	# load last model weights
+	model.load_state_dict(last_model_wts)
 
 	# load model weights
 	# model.load_state_dict(model_wts)

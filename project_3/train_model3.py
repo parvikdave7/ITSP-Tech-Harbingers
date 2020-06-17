@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils, datasets, models
+from torch.optim.lr_scheduler import ExponentialLR
 import time
 import os
 import copy
@@ -24,7 +25,7 @@ transform = transforms.Compose([transforms.RandomResizedCrop(size_x, scale=(0.9,
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(degrees = 10),
 	transforms.Resize([size_x,size_y]),
-    transforms.ColorJitter(brightness=0.1,contrast=0.1,saturation=0.1,hue=0.1),
+    # transforms.ColorJitter(brightness=0.1,contrast=0.1,saturation=0.1,hue=0.1),
     transforms.ToTensor()])
 
 dataloaders_dict = {'train': load_dataset('train',transform),
@@ -36,20 +37,15 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Model Details ------------------------------------------------------
 
-num_epochs = 5
+init_lr = 1e-4
+num_epochs = 15
+decay_rate = init_lr/num_epochs
 
 # Initialize the model for this run
 model_ft = Livenet()
 
 # summary of the model
-
-# summary(model, *inputs, batch_size=-1, show_input=False, show_hierarchical=False,
-#         print_summary=False, max_depth=1, show_parent_layers=False):
-
-# print(summary(model_ft,torch.zeros((32,3,32,32)),show_input = False,show_hierarchical = True))
-# Print the model we just instantiated
-# print(model_ft)
-# pdb.set_trace()
+print(summary(model_ft,torch.zeros((32,3,32,32)),show_input = False,show_hierarchical = True))
 
 model_ft = model_ft.to(device)
 
@@ -74,19 +70,22 @@ for name,param in model_ft.named_parameters():
 
 
 # Observe that all parameters are being optimized
-optimizer_ft = optim.SGD(params_to_update, lr = 0.01, momentum = 0.5)
-
-# optimizer_ft = optim
+optimizer_ft = optim.Adam(params_to_update, lr = init_lr, eps = 1e-07)
+opt_schedule = ExponentialLR(optimizer = optimizer_ft, gamma = decay_rate)
+# weights = [1/3,2/3]   # because the code needs to be more precise in determining fake
+# class_weights = torch.FloatTensor(weights).cuda()
+# criterion = nn.CrossEntropyLoss(weight = class_weights)
 
 # Setup the loss function
+
 criterion = nn.CrossEntropyLoss()
 
 # Train and evaluate
-model_ft, plots = train_model(model_ft, dataloaders_dict, criterion, optimizer_ft, num_epochs = num_epochs)
+model_ft, plots = train_model(model_ft, dataloaders_dict, criterion, optimizer_ft, opt_schedule, num_epochs)
 plt.plot(plots[0])
 plt.plot(plots[1])
-plt.legend(['training','validation'])
-plt.savefig('history.png')
-torch.save(model_ft.state_dict(), '/home/ojas/Desktop/itsp/project/models/livenet5.pth')
+plt.legend(['train_acc','val_acc'])
+plt.savefig('accuracy8.png')
+torch.save(model_ft.state_dict(), '/home/ojas/Desktop/itsp/project/models/livenet9.pth')
 plt.show()
 # pdb.set_trace()

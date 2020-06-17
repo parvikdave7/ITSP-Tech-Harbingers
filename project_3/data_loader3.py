@@ -19,7 +19,6 @@ def load_dataset(dset,transform):
 		root = data_path,
 		transform = transform)
 	
-
 	for image_num, path in enumerate(dataset.samples[:]):
 		if path[0].split('/')[-1][:2] == '._':
 			arr = path[0].split('/')
