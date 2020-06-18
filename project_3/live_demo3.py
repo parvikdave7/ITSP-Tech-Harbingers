@@ -8,21 +8,22 @@ import torch
 from helper_functions3 import Livenet
 import os
 
-
 print("[INFO] loading face detector...")
 protoPath = os.path.sep.join(["face_detector", "deploy.prototxt"])
 modelPath = os.path.sep.join(["face_detector",
     "res10_300x300_ssd_iter_140000.caffemodel"])
 net = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
-
-print('[ Loading Model ... ]')
+print('[INFO] face detector loaded successfully ')
+print('[INFO] Loading liveness detector Model ... ')
 model = Livenet()
-model.load_state_dict(torch.load
-    ('/home/ojas/Desktop/itsp/project/models/livenet10.pth'))
+model.load_state_dict(torch.load(
+    '/home/ojas/Desktop/itsp/project/models/livenet18.pth'))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 model.eval()
-print('[ Model loaded successfully ]')
+print('[INFO] liveness detector loaded successfully ')
+
+print('[INFO] streaming ...')
 
 trans = transforms.Compose([transforms.ToTensor()])
 
@@ -82,6 +83,8 @@ while True:
                     str(result[pred.item()]) + str(' : {:.4f}'.format(val.item())),
                     (startX, startY - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                cv2.putText(frame, 'Press (q) to quit', (5, 18),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0,0,100), 1)
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
                     (0, 0, 255), 2)
 
