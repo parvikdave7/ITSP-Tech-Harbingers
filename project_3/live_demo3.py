@@ -84,7 +84,7 @@ while True:
                     (startX, startY - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 cv2.putText(frame, 'Press (q) to quit', (5, 18),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0,0,100), 1)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0,0,150), 1)
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
                     (0, 0, 255), 2)
 
