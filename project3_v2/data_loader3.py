@@ -13,7 +13,7 @@ size = 32
 
 def load_dataset(dset,transform):
 	
-	data_path = '/home/ojas/Desktop/itsp/project/new_dataset/training'
+	data_path = '/home/ojas/Desktop/itsp/project/github/ITSP-Tech-Harbingers/project3_v2/live_dataset'
 			
 	dataset = datasets.ImageFolder(
 		root = data_path,
@@ -27,7 +27,7 @@ def load_dataset(dset,transform):
 	# 		tup = (str(arr),dataset.samples[image_num][1])
 	# 		dataset.samples[image_num] = tup
 
-	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [3960,1320])
+	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [5413,1804])
 		# pdb.set_trace()
 
 	train_loader = DataLoader(train_dataset,
