@@ -82,7 +82,10 @@ while True:
 			# write the frame to disk
 			p = os.path.sep.join([args["output"],
 				"{}.png".format(saved)])
-			cv2.imwrite(p, face)
+			try:
+				cv2.imwrite(p, face)
+			except:
+				continue
 			saved += 1
 			print("[INFO] saved {} to disk".format(p))
 
