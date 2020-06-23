@@ -14,7 +14,7 @@ from pytorch_model_summary import summary
 
 # Top level data directory. Here we assume the format of the directory conforms 
 #   to the ImageFolder structure
-data_dir = '/home/ojas/Desktop/itsp/project/face_dataset'
+data_dir = 'face_dataset'
 
 # Models to choose from [resnet, alexnet, vgg, squeezenet, densenet, inception]
 model_name = "squeezenet"
