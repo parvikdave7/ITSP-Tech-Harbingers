@@ -10,9 +10,9 @@ from pyimagesearch.livenessnet import LivenessNet
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from keras.preprocessing.image import ImageDataGenerator
-from keras.optimizers import Adam
-from keras.utils import np_utils
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.utils import to_categorical
 from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
@@ -49,7 +49,7 @@ labels = []
 for imagePath in imagePaths:
 	# extract the class label from the filename, load the image and
 	# resize it to be a fixed 32x32 pixels, ignoring aspect ratio
-	label = imagePath.split(os.path.sep)[-2]
+	label = imagePath.split(os.path.sep)[-3]
 	image = cv2.imread(imagePath)
 	image = cv2.resize(image, (32, 32))
 
@@ -65,7 +65,7 @@ data = np.array(data, dtype="float") / 255.0
 # one-hot encode them
 le = LabelEncoder()
 labels = le.fit_transform(labels)
-labels = np_utils.to_categorical(labels, 2)
+labels = to_categorical(labels, 2)
 
 # partition the data into training and testing splits using 75% of
 # the data for training and the remaining 25% for testing
@@ -87,7 +87,7 @@ model.compile(loss="binary_crossentropy", optimizer=opt,
 
 # train the network
 print("[INFO] training network for {} epochs...".format(EPOCHS))
-H = model.fit_generator(aug.flow(trainX, trainY, batch_size=BS),
+H = model.fit(aug.flow(trainX, trainY, batch_size=BS),
 	validation_data=(testX, testY), steps_per_epoch=len(trainX) // BS,
 	epochs=EPOCHS)
 
@@ -99,7 +99,7 @@ print(classification_report(testY.argmax(axis=1),
 
 # save the network to disk
 print("[INFO] serializing network to '{}'...".format(args["model"]))
-model.save(args["model"])
+model.save(args["model"], save_format = "h5")
 
 # save the label encoder to disk
 f = open(args["le"], "wb")
@@ -111,8 +111,8 @@ plt.style.use("ggplot")
 plt.figure()
 plt.plot(np.arange(0, EPOCHS), H.history["loss"], label="train_loss")
 plt.plot(np.arange(0, EPOCHS), H.history["val_loss"], label="val_loss")
-plt.plot(np.arange(0, EPOCHS), H.history["acc"], label="train_acc")
-plt.plot(np.arange(0, EPOCHS), H.history["val_acc"], label="val_acc")
+plt.plot(np.arange(0, EPOCHS), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(0, EPOCHS), H.history["val_accuracy"], label="val_acc")
 plt.title("Training Loss and Accuracy on Dataset")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")

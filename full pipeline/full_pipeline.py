@@ -1,10 +1,10 @@
 # USAGE
-# python liveness_demo.py --model liveness.model --le le.pickle --detector face_detector
+# python full_pipeline.py --model liveness.model --le le.pickle --detector face_detector --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
 
 # import the necessary packages
 from imutils.video import VideoStream
-from keras.preprocessing.image import img_to_array
-from keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.models import load_model
 import numpy as np
 import argparse
 import imutils

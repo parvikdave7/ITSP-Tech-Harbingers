@@ -3,8 +3,8 @@
 
 # import the necessary packages
 from imutils.video import VideoStream
-from keras.preprocessing.image import img_to_array
-from keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.models import load_model
 import numpy as np
 import argparse
 import imutils

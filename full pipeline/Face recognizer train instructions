@@ -1,0 +1,9 @@
+Agar sirf face recognizer check kar rahe ho:
+
+Step-1 15-20 image daal dataset/<tumhara naam> folder mein, preferably built using build_face_dataset
+
+Step-2 Run "python extract_embeddings.py --dataset dataset_recognizer --embeddings output/embeddings.pickle --detector face_detector --embedding-model openface_nn4.small2.v1.t7"
+
+Step-3 Run "python train_model.py --embeddings output/embeddings.pickle --recognizer output/recognizer.pickle --le output/le.pickle"
+
+Step-4 Run "python full_pipeline.py --model liveness.model --le le.pickle --detector face_detector --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle --le-recognizer output/le.pickle"

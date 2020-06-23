@@ -1,0 +1,16 @@
+Liveness dataset kaise banana hai. Saare folders full_pipeline folder ke andar ki baat hai
+
+Step-1: 20s ka video record karo with diverse background on phone. Dhyan rahe, har frame mein face aaye to make good dataset. Apne webcam ke saamne apna phone rakho aur wo real video record karo. Iske baad github pe dalo ya mujhe bhej do ASAP.
+
+Optional - agar khud liveness detector train karna chahte ho.
+
+Step-2: Dono videos ko videos folder mein <your name>_real.mp4 and <your name>_fake.mp4 se save kar lo. Datset/real mein jao, ek <your name> folder banao. Same kam dataset/fake me karo.
+
+Step-3: Open gather_examples.py Upar ek usage ka line hoga. Usme <your name> ki jagah apna naam daal dena aur run kar dena aur run kardo. IMPORTANT: Ek bar dataset/real/<your name> khol ke dekh lena. Agar saare images rotated ho, to ctrl+A karo, right click and select rotate left/right (jo thik ho).
+
+Step-4: Open train_liveness.py. Upar ek usage ka line hoga. Run kardo.
+
+Step-5: Open liveness_demo.py. Upar ek usage ka line hoga. Run kardo.
+
+
+
