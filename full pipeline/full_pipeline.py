@@ -1,5 +1,5 @@
 # USAGE
-# python full_pipeline.py --model liveness.model --le le.pickle --detector face_detector --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
+# python full_pipeline.py --model liveness.model --le le_liveness.pickle --detector face_detector --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
 
 # import the necessary packages
 from imutils.video import VideoStream
