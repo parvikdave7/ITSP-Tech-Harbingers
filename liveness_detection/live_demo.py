@@ -7,8 +7,8 @@ import torch.nn as nn
 import torch
 import os
 import pdb
-from helper_functions3 import Livenet
-from face_helper_funcs import set_parameter_requires_grad,  initialize_model
+from helper_functions import Livenet
+from face_helper_func import set_parameter_requires_grad,  initialize_model
 
 print("[INFO] loading face detector...")
 protoPath = os.path.sep.join(["face_detector", "deploy.prototxt"])
@@ -19,7 +19,7 @@ print('[INFO] face detector loaded successfully ')
 print('[INFO] Loading liveness detector Model ... ')
 live_model = Livenet()
 live_model.load_state_dict(torch.load(
-    'live_models/livenet18.pth'))
+    'live_models/livenet19.pth'))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 live_model = live_model.to(device)
 live_model.eval()
@@ -36,7 +36,8 @@ print('[INFO] face recognition model loaded successfully ')
 print('[INFO] streaming ...')
 
 live_trans = transforms.Compose([transforms.ToTensor()])
-recog_trans = transforms.Compose([transforms.ToTensor(),transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+recog_trans = transforms.Compose([transforms.ToTensor(),transforms.Normalize(
+    [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 live_size = 32
 video = VideoStream(src = 0).start()
