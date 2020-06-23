@@ -12,8 +12,8 @@ import time
 import os
 import copy
 import pdb
-from data_loader3 import load_dataset
-from helper_functions3 import Livenet, train_model
+from data_loader import load_dataset
+from helper_functions import Livenet, train_model
 from pytorch_model_summary import summary
 
 torch.cuda.empty_cache()
@@ -90,6 +90,6 @@ plt.plot(plots[0])
 plt.plot(plots[1])
 plt.legend(['train_acc','val_acc'])
 plt.savefig('accuracy_{}.png'.format(model_name))
-torch.save(model_ft.state_dict(), '/home/ojas/Desktop/itsp/project/github/ITSP-Tech-Harbingers/project3_v2/live_models/{}.pth'.format(model_name))
+torch.save(model_ft.state_dict(), '/home/ojas/Desktop/itsp/project/github/ITSP-Tech-Harbingers/liveness_detection/live_models/{}.pth'.format(model_name))
 plt.show()
 # pdb.set_trace()

@@ -7,8 +7,8 @@ import torch.nn as nn
 import torch
 import os
 import pdb
-from helper_functions3 import Livenet
-from face_helper_funcs import set_parameter_requires_grad,  initialize_model
+from helper_functions import Livenet
+from face_helper_func import set_parameter_requires_grad,  initialize_model
 
 print("[INFO] loading face detector...")
 protoPath = os.path.sep.join(["face_detector", "deploy.prototxt"])
