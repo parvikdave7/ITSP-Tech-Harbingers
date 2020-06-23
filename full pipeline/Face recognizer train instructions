@@ -1,6 +1,6 @@
 Agar sirf face recognizer check kar rahe ho:
 
-Step-1 50 image daal dataset/<tumhara naam> folder mein, preferably built using build_face_dataset
+Step-1 15-20 image daal dataset/<tumhara naam> folder mein, preferably built using build_face_dataset
 
 Step-2 Run "python extract_embeddings.py --dataset dataset_recognizer --embeddings output/embeddings.pickle --detector face_detector --embedding-model openface_nn4.small2.v1.t7"
 

@@ -18,16 +18,17 @@ net = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 print('[INFO] face detector loaded successfully ')
 print('[INFO] Loading liveness detector Model ... ')
 live_model = Livenet()
+live_model.load_state_dict(torch.load(
+    'live_models/livenet18.pth'))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-live_model.load_state_dict(torch.load('..\project_3\models\livenet18.pth',map_location=device))
-
 live_model = live_model.to(device)
 live_model.eval()
 print('[INFO] liveness detector loaded successfully ')
 print('[INFO] Loading face recognition model ... ')
 face_model, recog_size = initialize_model(model_name = 'squeezenet', num_classes = 5,
     feature_extract = False, use_pretrained = False)
-face_model.load_state_dict(torch.load('face_models/squeezenet2.pth',map_location=device))
+face_model.load_state_dict(torch.load(
+    'face_models/squeezenet2.pth'))
 face_model = face_model.to(device)
 face_model.eval()
 print('[INFO] face recognition model loaded successfully ')
@@ -82,18 +83,19 @@ while True:
             face = cv2.resize(face, (live_size, live_size))
             face = live_trans(face)
             face = face.reshape(1,3,live_size,live_size)
-            face = face.float()
+            face = face.float().cuda()
 
             #liveness prediction
             # torch.max(face)
             outputs = live_model(face)
             val,live_preds = torch.max(outputs,1)
 
+            face_preds = torch.tensor([5])
             if live_result[live_preds.item()] == 'real':
                 face_recog = recog_trans(face_recog)
                 face_recog = face_recog.reshape(1,3,recog_size,recog_size)
                 # pdb.set_trace()
-                face_recog = face_recog.float()
+                face_recog = face_recog.float().cuda()
                 # print(face_recog.shape)
                 outputs = face_model(face_recog)
                 _,face_preds = torch.max(outputs,1)
