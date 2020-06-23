@@ -137,7 +137,7 @@ while True:
     # the screen
     if args["display"] > 0:
         cv2.imshow("Frame", frame)
-        key = cv2.waitKey(0) & 0xFF
+        key = cv2.waitKey(1) & 0xFF
 
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
