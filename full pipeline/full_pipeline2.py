@@ -74,8 +74,8 @@ while True:
     
     # convert the input frame from BGR to RGB then resize it to have
     # a width of 750px (to speedup processing)
+    frame = imutils.resize(frame, width=600)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    rgb = imutils.resize(frame, width=750)
     r = frame.shape[1] / float(rgb.shape[1])
 
     # detect the (x, y)-coordinates of the bounding boxes
@@ -86,11 +86,10 @@ while True:
     encodings = face_recognition.face_encodings(rgb, boxes)
     names = []
     probs = []
-    i=0
     # loop over the facial embeddings
     for ((top, right, bottom, left), encoding) in zip(boxes, encodings):
         
-        face_img = rgb[top:bottom, left:right]
+        face_img = frame[top:bottom, left:right]
         face_img = cv2.resize(face_img, (32, 32))
         face_img = face_img.astype("float") / 255.0
         face_img = img_to_array(face_img)
