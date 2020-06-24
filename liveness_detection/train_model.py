@@ -39,7 +39,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # Model Details ------------------------------------------------------
 
 init_lr = 1e-4
-num_epochs = 15
+num_epochs = 25
 decay_rate = init_lr/num_epochs
 
 # Initialize the model for this run
@@ -81,7 +81,7 @@ optimizer_ft = optim.Adam(params_to_update, lr = init_lr, eps = 1e-07)
 
 criterion = nn.CrossEntropyLoss()
 
-model_name = 'livenet18'
+model_name = 'livenet20'
 
 # Train and evaluate
 # model_ft, plots = train_model(model_ft, dataloaders_dict, criterion, optimizer_ft, opt_schedule, num_epochs)

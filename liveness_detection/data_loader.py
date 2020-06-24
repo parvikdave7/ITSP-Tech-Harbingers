@@ -27,9 +27,9 @@ def load_dataset(dset,transform):
 			tup = (str(arr),dataset.samples[image_num][1])
 			dataset.samples[image_num] = tup
 
-	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [5413,1804])
-	7217
-	7217
+	# pdb.set_trace()
+
+	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [5412,1803])
 		# pdb.set_trace()
 
 	train_loader = DataLoader(train_dataset,
@@ -41,7 +41,7 @@ def load_dataset(dset,transform):
 		batch_size = test_batch,
 		num_workers = 0,
 		shuffle = True)
-	pdb.set_trace()
+	# pdb.set_trace()
 
 	if dset == 'train':	
 		print('train input shape : {}'.format(train_dataset[0][0].shape))

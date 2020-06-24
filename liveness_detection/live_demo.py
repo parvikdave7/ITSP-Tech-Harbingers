@@ -8,7 +8,7 @@ import torch
 import os
 import pdb
 from helper_functions import Livenet
-from face_helper_func import set_parameter_requires_grad,  initialize_model
+from face_helper_funcs import set_parameter_requires_grad,  initialize_model
 
 print("[INFO] loading face detector...")
 protoPath = os.path.sep.join(["face_detector", "deploy.prototxt"])
@@ -19,7 +19,7 @@ print('[INFO] face detector loaded successfully ')
 print('[INFO] Loading liveness detector Model ... ')
 live_model = Livenet()
 live_model.load_state_dict(torch.load(
-    'live_models/livenet19.pth'))
+    'live_models/livenet20.pth'))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 live_model = live_model.to(device)
 live_model.eval()

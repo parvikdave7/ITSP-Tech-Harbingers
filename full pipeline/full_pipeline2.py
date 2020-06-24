@@ -16,6 +16,14 @@ import numpy as np
 from tensorflow.keras.preprocessing.image import img_to_array
 import os
 import glob
+import tensorflow as tf
+
+physical_devices = tf.config.list_physical_devices('GPU')
+try:
+  tf.config.experimental.set_memory_growth(physical_devices[0], True)
+except:
+  # Invalid device or cannot modify virtual devices once initialized.
+  pass
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()

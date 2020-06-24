@@ -22,13 +22,13 @@ class Livenet(nn.Module):
 		self.bn1 = nn.BatchNorm2d(num_features = 16,eps = 0.001,momentum = 0.5)
 		self.conv2 = nn.Conv2d(16,16,kernel_size = 3,padding = 1)
 		self.bn2 = nn.BatchNorm2d(num_features = 16,eps = 0.001,momentum = 0.5)
-		self.drop1 = nn.Dropout(p = 0.25)
+		self.drop1 = nn.Dropout(p = 0.4)
 
 		self.conv3 = nn.Conv2d(16,32,kernel_size = 3,padding = 1)
 		self.bn3 = nn.BatchNorm2d(num_features = 32,eps = 0.001,momentum = 0.5)
 		self.conv4 = nn.Conv2d(32,32,kernel_size = 3,padding = 1)
 		self.bn4 = nn.BatchNorm2d(num_features = 32,eps = 0.001,momentum = 0.5)
-		self.drop2 = nn.Dropout(p = 0.25)
+		self.drop2 = nn.Dropout(p = 0.4)
 
 		self.flatten = nn.Flatten()
 		self.dense1 = nn.Linear(32*8*8,64)
@@ -99,10 +99,10 @@ def train_model(model,dataloaders,criterion,optimizer,num_epochs):
 			running_corrects = 0
 
 			# pdb.set_trace()
-			pdb.set_trace()
+			# pdb.set_trace()
 			for inputs, labels in dataloaders[phase]:
 				input_no += 1
-				if input_no%30 == 0:
+				if input_no%100 == 0:
 					print('[ {} progress = {} % ]'.format(
 						phase,100*8*input_no/len(dataloaders[phase].dataset)))
 				inputs = inputs.to(device)
