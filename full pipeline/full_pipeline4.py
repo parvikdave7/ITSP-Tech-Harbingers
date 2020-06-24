@@ -46,7 +46,7 @@ live_model = Livenet()
 live_size = 32
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 live_model.load_state_dict(torch.load(
-    'live_models/livenet20.pth',map_location=device))
+    'live_models/livenet18.pth',map_location=device))
 live_model = live_model.to(device)
 live_model.eval()
 live_trans = transforms.Compose([transforms.ToTensor()])
@@ -113,7 +113,7 @@ while True:
             face = cv2.resize(face, (live_size, live_size))
             face = live_trans(face)
             face = face.reshape(1,3,live_size,live_size)
-            face = face.float()
+            face = face.float().cuda()
             #liveness prediction
             outputs = live_model(face)
             val,live_preds = torch.max(outputs,1)
