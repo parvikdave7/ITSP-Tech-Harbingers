@@ -4,6 +4,7 @@
 
 # import the necessary packages
 from imutils.video import VideoStream
+from imutils.video import FPS
 from tensorflow.keras.models import load_model
 import face_recognition
 import argparse
@@ -56,7 +57,7 @@ writer = None
 time.sleep(2.0)
 
 
-
+fps = FPS().start()
 
 # loop over frames from the video file stream
 while True:
@@ -120,6 +121,7 @@ while True:
         cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
             0.75, (0, 255, 0), 2)
     
+    fps.update()
 
     # if the video writer is None *AND* we are supposed to write
     # the output video to disk initialize the writer
@@ -142,6 +144,12 @@ while True:
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
             break
+
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+
 
 # do a bit of cleanup
 cv2.destroyAllWindows()

@@ -1,10 +1,11 @@
 # USAGE
-# python full_pipeline.py --model liveness.model --le le_liveness.pickle --detector face_detector --embedding-model openface_nn4.small2.v1.t7 --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
+# python full_pipeline.py --model liveness.model --le le.pickle --detector face_detector  --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
 
 # import the necessary packages
 from imutils.video import VideoStream
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
+import face_recognition
 import numpy as np
 import argparse
 import imutils
@@ -23,8 +24,6 @@ ap.add_argument("-d", "--detector", type=str, required=True,
     help="path to OpenCV's deep learning face detector")
 ap.add_argument("-c", "--confidence", type=float, default=0.5,
     help="minimum probability to filter weak detections")
-ap.add_argument("-e", "--embedding-model", required=True,
-    help="path to OpenCV's deep learning face embedding model")
 ap.add_argument("-r", "--recognizer", required=True,
     help="path to model trained to recognize faces")
 ap.add_argument("-b", "--le-recognizer", required=True,
@@ -45,10 +44,8 @@ print("[INFO] loading liveness detector...")
 model = load_model(args["model"])
 le = pickle.loads(open(args["le"], "rb").read())
 
-print("[INFO] loading face recognizer...")
-embedder = cv2.dnn.readNetFromTorch(args["embedding_model"])
-
 # load the actual face recognition model along with the label encoder
+print("[INFO] loading face recognizer...")
 recognizer = pickle.loads(open(args["recognizer"], "rb").read())
 le_recognizer = pickle.loads(open(args["le_recognizer"], "rb").read())
 
@@ -63,16 +60,20 @@ while True:
     # to have a maximum width of 600 pixels
     frame = vs.read()
     frame = imutils.resize(frame, width=600)
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # grab the frame dimensions and convert it to a blob
     (h, w) = frame.shape[:2]
-    blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)), 1.0,
-        (300, 300), (104.0, 177.0, 123.0))
+    blob = cv2.dnn.blobFromImage(
+        cv2.resize(frame, (300, 300)), 1.0, (300, 300),
+        (104.0, 177.0, 123.0), swapRB=False, crop=False)
+
 
     # pass the blob through the network and obtain the detections and
     # predictions
     net.setInput(blob)
     detections = net.forward()
+    boxes = []
 
     # loop over the detections
     for i in range(0, detections.shape[2]):
@@ -117,28 +118,31 @@ while True:
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
                     (0, 0, 255), 2)
             else:
-                # construct a blob for the face ROI, then pass the blob
-                # through our face embedding model to obtain the 128-d
-                # quantification of the face
-                faceBlob = cv2.dnn.blobFromImage(face2, 1.0 / 255,
-                (96, 96), (0, 0, 0), swapRB=True, crop=False)
-                embedder.setInput(faceBlob)
-                vec = embedder.forward()
+                boxes.append((startY, endX, endY, startX))
+    
 
-                # perform classification to recognize the face
-                preds = recognizer.predict_proba(vec)[0]
-                j = np.argmax(preds)
-                proba = preds[j]
-                name = le_recognizer.classes_[j]
+    encodings = face_recognition.face_encodings(rgb, boxes)
+    names = []
+    probs = []
 
-                # draw the bounding box of the face along with the
-                # associated probability
-                text = "{}: {:.2f}%".format(name, proba * 100)
-                y = startY - 10 if startY - 10 > 10 else startY + 10
-                cv2.rectangle(frame, (startX, startY), (endX, endY),
-                    (0, 0, 255), 2)
-                cv2.putText(frame, text, (startX, y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+    # loop over the facial embeddings
+    for encoding in encodings:
+        # perform classification to recognize the face
+        preds = recognizer.predict_proba(encoding.reshape(1,-1))[0]
+        j = np.argmax(preds)
+        proba = preds[j]
+        name = le_recognizer.classes_[j]
+        names.append(name)
+        probs.append(proba)
+
+    # loop over the recognized faces
+    for ((top, right, bottom, left), name, proba) in zip(boxes, names, probs):
+        # draw the predicted face name on the image
+        cv2.rectangle(frame, (left, top), (right, bottom),
+            (0, 255, 0), 2)
+        y = top - 15 if top - 15 > 15 else top + 15
+        cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+            0.75, (0, 255, 0), 2)
 
     # show the output frame and wait for a key press
     cv2.imshow("Frame", frame)
