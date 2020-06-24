@@ -3,6 +3,7 @@
 
 # import the necessary packages
 from imutils.video import VideoStream
+from imutils.video import FPS
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
 import face_recognition
@@ -66,6 +67,8 @@ print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
 
+fps = FPS().start()
+
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
@@ -113,7 +116,10 @@ while True:
             face = cv2.resize(face, (live_size, live_size))
             face = live_trans(face)
             face = face.reshape(1,3,live_size,live_size)
-            face = face.float().cuda()
+            if device == 'cpu':
+                face = face.float()
+            else:    
+                face = face.float().cuda()
             #liveness prediction
             outputs = live_model(face)
             val,live_preds = torch.max(outputs,1)
@@ -154,6 +160,9 @@ while True:
         y = top - 15 if top - 15 > 15 else top + 15
         cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
             0.75, (0, 255, 0), 2)
+    
+    # update the FPS counter
+    fps.update()
 
     # show the output frame and wait for a key press
     cv2.imshow("Frame", frame)
@@ -162,6 +171,11 @@ while True:
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
+
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
