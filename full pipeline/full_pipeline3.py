@@ -57,13 +57,10 @@ live_model.load_state_dict(torch.load(
     'live_models/livenet20.pth',map_location=device))
 live_model = live_model.to(device)
 live_model.eval()
-
 live_trans = transforms.Compose([transforms.ToTensor()])
 recog_trans = transforms.Compose([transforms.ToTensor(),transforms.Normalize(
     [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-live_size = 32
-video = VideoStream(src = 0).start()
 live_result = {0:'fake',1:'real'}
 print('[INFO] liveness detector loaded successfully ')
 
@@ -78,8 +75,6 @@ vs = VideoStream(src=0).start()
 writer = None
 time.sleep(2.0)
 
-
-fps = FPS().start()
 
 # loop over frames from the video file stream
 while True:
@@ -142,7 +137,6 @@ while True:
         cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
             0.75, (0, 255, 0), 2)
     
-    fps.update()
 
     # if the video writer is None *AND* we are supposed to write
     # the output video to disk initialize the writer
@@ -167,10 +161,6 @@ while True:
             break
 
 # stop the timer and display FPS information
-fps.stop()
-print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
