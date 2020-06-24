@@ -1,9 +1,8 @@
 # USAGE
-# python full_pipeline.py --model liveness.model --le le.pickle --detector face_detector  --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
+# python full_pipeline4.py --model liveness.model --detector face_detector  --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
 
 # import the necessary packages
 from imutils.video import VideoStream
-from imutils.video import FPS
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
 import face_recognition
@@ -14,13 +13,15 @@ import pickle
 import time
 import cv2
 import os
+from helper_functions import Livenet
+from torchvision import models, transforms
+import torch.nn as nn
+import torch
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-m", "--model", type=str, required=True,
     help="path to trained model")
-ap.add_argument("-l", "--le", type=str, required=True,
-    help="path to label encoder")
 ap.add_argument("-d", "--detector", type=str, required=True,
     help="path to OpenCV's deep learning face detector")
 ap.add_argument("-c", "--confidence", type=float, default=0.5,
@@ -40,10 +41,20 @@ modelPath = os.path.sep.join([args["detector"],
     "res10_300x300_ssd_iter_140000.caffemodel"])
 net = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 
-# load the liveness detector model and label encoder from disk
-print("[INFO] loading liveness detector...")
-model = load_model(args["model"])
-le = pickle.loads(open(args["le"], "rb").read())
+print('[INFO] Loading liveness detector Model ... ')
+live_model = Livenet()
+live_size = 32
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+live_model.load_state_dict(torch.load(
+    'live_models/livenet20.pth',map_location=device))
+live_model = live_model.to(device)
+live_model.eval()
+live_trans = transforms.Compose([transforms.ToTensor()])
+recog_trans = transforms.Compose([transforms.ToTensor(),transforms.Normalize(
+    [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+
+live_result = {0:'fake',1:'real'}
+print('[INFO] liveness detector loaded successfully ')
 
 # load the actual face recognition model along with the label encoder
 print("[INFO] loading face recognizer...")
@@ -54,8 +65,6 @@ le_recognizer = pickle.loads(open(args["le_recognizer"], "rb").read())
 print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
-
-fps = FPS().start()
 
 # loop over the frames from the video stream
 while True:
@@ -100,18 +109,17 @@ while True:
 
             # extract the face ROI and then preproces it in the exact
             # same manner as our training data
-            face = frame[startY:endY, startX:endX]
-            face2 = face.copy()
-            face = cv2.resize(face, (32, 32))
-            face = face.astype("float") / 255.0
-            face = img_to_array(face)
-            face = np.expand_dims(face, axis=0)
-
+            face = rgb[startY:endY, startX:endX]
+            face = cv2.resize(face, (live_size, live_size))
+            face = live_trans(face)
+            face = face.reshape(1,3,live_size,live_size)
+            face = face.float()
+            #liveness prediction
+            outputs = live_model(face)
+            val,live_preds = torch.max(outputs,1)
+            label=live_result[live_preds.item()]
             # pass the face ROI through the trained liveness detector
             # model to determine if the face is "real" or "fake"
-            preds = model.predict(face)[0]
-            j = np.argmax(preds)
-            label = le.classes_[j]
 
             # draw the label and bounding box on the frame
             if label == "fake":
@@ -147,9 +155,6 @@ while True:
         cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
             0.75, (0, 255, 0), 2)
 
-    # update the FPS counter
-    fps.update()
-
     # show the output frame and wait for a key press
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
@@ -157,11 +162,6 @@ while True:
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
-
-# stop the timer and display FPS information
-fps.stop()
-print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
