@@ -1,11 +1,12 @@
 # USAGE
-# python full_pipeline3.py --encodings encodings.pickle  --recognizer output/recognizer.pickle --le output/le.pickle 
-# python full_pipeline3.py --encodings encodings.pickle --output output/jurassic_park_trailer_output.avi --display 0
+# python static_pytorch.py --encodings encodings.pickle  --recognizer output/recognizer.pickle --le output/le.pickle 
+# python static_pytorch.py --encodings encodings.pickle --output output/jurassic_park_trailer_output.avi --display 0
 
 # import the necessary packages
 from imutils.video import VideoStream
 from imutils.video import FPS
 from tensorflow.keras.models import load_model
+from PIL import Image
 import face_recognition
 import argparse
 import imutils
@@ -35,7 +36,7 @@ ap.add_argument("-e", "--encodings", required=True,
     help="path to serialized db of facial encodings")
 ap.add_argument("-o", "--output", type=str,
     help="path to output video")
-ap.add_argument("-y", "--display", type=int, default=1,
+ap.add_argument("-y", "--display", type=int, default=0,
     help="whether or not to display output frame to screen")
 ap.add_argument("-d", "--detection-method", type=str, default="cnn",
     help="face detection model to use: either `hog` or `cnn`")
@@ -48,6 +49,14 @@ args = vars(ap.parse_args())
 # load the known faces and embeddings
 print("[INFO] loading encodings...")
 data = pickle.loads(open(args["encodings"], "rb").read())
+
+img_dir = "trial" # Enter Directory of all images 
+data_path = os.path.join(img_dir,'*g')
+files = glob.glob(data_path)
+data = []
+for f1 in files:
+    img = cv2.imread(f1)
+    data.append(img)
 
 print('[INFO] Loading liveness detector Model ... ')
 live_model = Livenet()
@@ -71,15 +80,13 @@ le = pickle.loads(open(args["le"], "rb").read())
 # initialize the video stream and pointer to output video file, then
 # allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
 writer = None
 time.sleep(2.0)
 
-
-# loop over frames from the video file stream
-while True:
+a=0
+for datum in data:
     # grab the frame from the threaded video stream
-    frame = vs.read()
+    frame = datum
     frame = imutils.resize(frame, width=600)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     # convert the input frame from BGR to RGB then resize it to have
@@ -150,6 +157,10 @@ while True:
     if writer is not None:
         writer.write(frame)
 
+    true_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    pil_img = Image.fromarray(true_frame)
+    pil_img.save("results2\{}.jpg".format(0 + a))
+    a=a+1
     # check to see if we are supposed to display the output frame to
     # the screen
     if args["display"] > 0:
@@ -162,7 +173,6 @@ while True:
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
-vs.stop()
 
 # check to see if the video writer point needs to be released
 if writer is not None:
