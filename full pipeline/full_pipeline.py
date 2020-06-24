@@ -3,6 +3,7 @@
 
 # import the necessary packages
 from imutils.video import VideoStream
+from imutils.video import FPS
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
 import face_recognition
@@ -53,6 +54,8 @@ le_recognizer = pickle.loads(open(args["le_recognizer"], "rb").read())
 print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
+
+fps = FPS().start()
 
 # loop over the frames from the video stream
 while True:
@@ -144,6 +147,9 @@ while True:
         cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
             0.75, (0, 255, 0), 2)
 
+    # update the FPS counter
+    fps.update()
+
     # show the output frame and wait for a key press
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
@@ -151,6 +157,11 @@ while True:
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
+
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()

@@ -75,6 +75,7 @@ vs = VideoStream(src=0).start()
 writer = None
 time.sleep(2.0)
 
+fps = FPS().start()
 
 # loop over frames from the video file stream
 while True:
@@ -98,13 +99,13 @@ while True:
     for ((top, right, bottom, left), encoding) in zip(boxes, encodings):
         
         face = rgb[top:bottom, left:right]
-
         face = cv2.resize(face, (live_size, live_size))
         face = live_trans(face)
         face = face.reshape(1,3,live_size,live_size)
         face = face.float()
+        face_cuda = face.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
         #liveness prediction
-        outputs = live_model(face)
+        outputs = live_model(face_cuda)
         val,live_preds = torch.max(outputs,1)
 
         # draw the label and bounding box on the frame
@@ -137,6 +138,8 @@ while True:
         cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
             0.75, (0, 255, 0), 2)
     
+    # update the FPS counter
+    fps.update()
 
     # if the video writer is None *AND* we are supposed to write
     # the output video to disk initialize the writer
@@ -159,6 +162,11 @@ while True:
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
             break
+
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
