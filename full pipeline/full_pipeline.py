@@ -112,7 +112,7 @@ while True:
 
             # draw the label and bounding box on the frame
             if label == "fake":
-                label = "{}: {:.4f}".format(label, preds[j])
+                label = "{}: {:.2f}%".format(label, preds[j]*100)
                 cv2.putText(frame, label, (startX, startY - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
