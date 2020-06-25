@@ -162,7 +162,7 @@ def train_model(model,dataloaders,criterion,optimizer,num_epochs):
 				val_acc_history.append(epoch_acc)
 				# acc = epoch_acc
 				# model_wts = copy.deepcopy(model.state_dict())
-				if (epoch_acc > last_acc or epoch_acc > 0.98):
+				if (epoch_acc > last_acc or epoch_acc > 0.95):
 					last_acc = epoch_acc
 					last_model_wts = copy.deepcopy(model.state_dict())
 

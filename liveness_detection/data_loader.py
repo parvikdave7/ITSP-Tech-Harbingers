@@ -13,7 +13,7 @@ size = 32
 
 def load_dataset(dset,transform):
 	
-	data_path = '/home/ojas/Desktop/itsp/project/github/ITSP-Tech-Harbingers/liveness_detection/live_dataset'
+	data_path = '/home/ojas/Desktop/itsp/project/github/ITSP-Tech-Harbingers/liveness_detection/dataset'
 			
 	dataset = datasets.ImageFolder(
 		root = data_path,
@@ -29,7 +29,8 @@ def load_dataset(dset,transform):
 
 	# pdb.set_trace()
 
-	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [5412,1803])
+
+	train_dataset, test_dataset = torch.utils.data.random_split(dataset, [2634,879])
 		# pdb.set_trace()
 
 	train_loader = DataLoader(train_dataset,
