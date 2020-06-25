@@ -4,8 +4,8 @@
 # import the necessary packages
 from imutils.video import VideoStream
 from imutils.video import FPS
-from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.preprocessing.image import img_to_array
+# from tensorflow.keras.models import load_model
 import face_recognition
 import numpy as np
 import argparse
