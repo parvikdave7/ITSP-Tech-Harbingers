@@ -7,6 +7,7 @@ from imutils.video import FPS
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
 import face_recognition
+import dlib
 import numpy as np
 import argparse
 import imutils
@@ -14,14 +15,8 @@ import pickle
 import time
 import cv2
 import os
-import tensorflow as tf
 
-physical_devices = tf.config.list_physical_devices('GPU')
-try:
-  tf.config.experimental.set_memory_growth(physical_devices[0], True)
-except:
-  # Invalid device or cannot modify virtual devices once initialized.
-  pass
+dlib.DLIB_USE_CUDA = True
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -57,6 +52,7 @@ le = pickle.loads(open(args["le"], "rb").read())
 print("[INFO] loading face recognizer...")
 recognizer = pickle.loads(open(args["recognizer"], "rb").read())
 le_recognizer = pickle.loads(open(args["le_recognizer"], "rb").read())
+print(le_recognizer.classes_)
 
 # initialize the video stream and allow the camera sensor to warmup
 print("[INFO] starting video stream...")
@@ -123,7 +119,7 @@ while True:
 
             # draw the label and bounding box on the frame
             if label == "fake":
-                label = "{}: {:.2f}%".format(label, preds[j]*100)
+                label = "{}: {:.4f}".format(label, preds[j])
                 cv2.putText(frame, label, (startX, startY - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 cv2.rectangle(frame, (startX, startY), (endX, endY),
