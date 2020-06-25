@@ -15,15 +15,8 @@ import pickle
 import time
 import cv2
 import os
-import tensorflow as tf
 
-physical_devices = tf.config.list_physical_devices('GPU')
-try:
-  tf.config.experimental.set_memory_growth(physical_devices[0], True)
-except:
-  # Invalid device or cannot modify virtual devices once initialized.
-  pass
-dlib.DLIB_USE_CUDA = True
+
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -42,7 +35,14 @@ ap.add_argument("-b", "--le-recognizer", required=True,
 ap.add_argument("-t", "--confidence-recognizer", type=float, default=0.5,
     help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
-
+def white_balance(img):
+    result = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    avg_a = np.average(result[:, :, 1])
+    avg_b = np.average(result[:, :, 2])
+    result[:, :, 1] = result[:, :, 1] - ((avg_a - 128) * (result[:, :, 0] / 255.0) * 1.1)
+    result[:, :, 2] = result[:, :, 2] - ((avg_b - 128) * (result[:, :, 0] / 255.0) * 1.1)
+    result = cv2.cvtColor(result, cv2.COLOR_LAB2BGR)
+    return result
 # load our serialized face detector from disk
 print("[INFO] loading face detector...")
 protoPath = os.path.sep.join([args["detector"], "deploy.prototxt"])
@@ -74,6 +74,7 @@ while True:
     # to have a maximum width of 600 pixels
     frame = vs.read()
     frame = imutils.resize(frame, width=600)
+    frame = white_balance(frame) #improving white balance of captured frame
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # grab the frame dimensions and convert it to a blob

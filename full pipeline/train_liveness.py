@@ -36,8 +36,16 @@ args = vars(ap.parse_args())
 # initialize the initial learning rate, batch size, and number of
 # epochs to train for
 INIT_LR = 1e-4
-BS = 32
+BS = 16
 EPOCHS = 100
+def white_balance(img):
+    result = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    avg_a = np.average(result[:, :, 1])
+    avg_b = np.average(result[:, :, 2])
+    result[:, :, 1] = result[:, :, 1] - ((avg_a - 128) * (result[:, :, 0] / 255.0) * 1.1)
+    result[:, :, 2] = result[:, :, 2] - ((avg_b - 128) * (result[:, :, 0] / 255.0) * 1.1)
+    result = cv2.cvtColor(result, cv2.COLOR_LAB2BGR)
+    return result
 
 # grab the list of images in our dataset directory, then initialize
 # the list of data (i.e., images) and class images
@@ -52,7 +60,7 @@ for imagePath in imagePaths:
 	label = imagePath.split(os.path.sep)[-3]
 	image = cv2.imread(imagePath)
 	image = cv2.resize(image, (32, 32))
-
+	image = white_balance(image)
 	# update the data and labels lists, respectively
 	data.append(image)
 	labels.append(label)
