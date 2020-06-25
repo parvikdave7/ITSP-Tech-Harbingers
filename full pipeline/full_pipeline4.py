@@ -1,5 +1,5 @@
 # USAGE
-# python full_pipeline4.py --detector face_detector  --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
+# python full_pipeline4.py --model liveness.model --detector face_detector  --recognizer output/recognizer.pickle  --le-recognizer output/le.pickle
 
 # import the necessary packages
 from imutils.video import VideoStream
@@ -21,6 +21,8 @@ import torch
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
+ap.add_argument("-m", "--model", type=str, required=True,
+    help="path to trained model")
 ap.add_argument("-d", "--detector", type=str, required=True,
     help="path to OpenCV's deep learning face detector")
 ap.add_argument("-c", "--confidence", type=float, default=0.5,

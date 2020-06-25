@@ -19,7 +19,7 @@ print('[INFO] face detector loaded successfully ')
 print('[INFO] Loading liveness detector Model ... ')
 live_model = Livenet()
 live_model.load_state_dict(torch.load(
-    'live_models/livenet20.pth'))
+    'live_models/livenet21.pth'))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 live_model = live_model.to(device)
 live_model.eval()
