@@ -4,8 +4,6 @@
 # import the necessary packages
 from imutils.video import VideoStream
 from imutils.video import FPS
-# from tensorflow.keras.preprocessing.image import img_to_array
-# from tensorflow.keras.models import load_model
 import face_recognition
 import numpy as np
 import argparse
@@ -45,7 +43,7 @@ live_model = Livenet()
 live_size = 32
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 live_model.load_state_dict(torch.load(
-    'live_models/livenet18.pth',map_location=device))
+    'live_models/livenet15.pth',map_location=device))
 live_model = live_model.to(device)
 live_model.eval()
 live_trans = transforms.Compose([transforms.ToTensor()])
