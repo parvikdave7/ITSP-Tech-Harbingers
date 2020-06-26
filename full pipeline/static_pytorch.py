@@ -116,7 +116,7 @@ for datum in data:
 
         # draw the label and bounding box on the frame
         if live_result[live_preds.item()] == 'fake':
-            name="Fake"
+            name="fake"
             proba=val.item()
             names.append(name)
             probs.append(proba)
@@ -138,11 +138,19 @@ for datum in data:
         left = int(left * r)
 
         # draw the predicted face name on the image
-        cv2.rectangle(frame, (left, top), (right, bottom),
-            (0, 255, 0), 2)
-        y = top - 15 if top - 15 > 15 else top + 15
-        cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-            0.75, (0, 255, 0), 2)
+        if name=="fake":
+            cv2.rectangle(frame, (left, top), (right, bottom),
+                (0, 0, 255), 2)
+            y = top - 15 if top - 15 > 15 else top + 15
+            cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                0.75, (0, 0, 255), 2)
+    
+        else:
+            cv2.rectangle(frame, (left, top), (right, bottom),
+                (0, 255, 0), 2)
+            y = top - 15 if top - 15 > 15 else top + 15
+            cv2.putText(frame, "{}: {:.2f}%".format(name, proba*100), (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                0.75, (0, 255, 0), 2)
     
 
     # if the video writer is None *AND* we are supposed to write
